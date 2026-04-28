@@ -26,15 +26,20 @@ export async function POST(req: Request) {
     );
 
   const token = signJwt({
-    userId: user.id,
+    userId: user.id.toString(),
     email: user.email,
   });
 
-  const response = NextResponse.json({ message: "Login success" });
+  const response = NextResponse.json({ 
+    message: "Login success",
+    redirect: "/dashboard"
+  });
 
   response.cookies.set("token", token, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
   });
 
