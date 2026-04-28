@@ -46,7 +46,7 @@ model Analysis {
   cpc         Decimal  @db.Decimal(15, 2)
   cpa         Decimal  @db.Decimal(15, 2)
   roas        Decimal? @db.Decimal(8, 2)
-  ai_analysis String   @db.Text
+  ai_analysis String?  @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
