@@ -1,6 +1,42 @@
+"use client";
+import { useState } from "react";
 import { Info, ChartColumn } from "lucide-react";
 
+type PerfFields = {
+  impressions: string;
+  clicks: string;
+  conversions: string;
+  spend: string;
+  price: string;
+};
+
+const FIELD_LABELS: Record<keyof PerfFields, string> = {
+  impressions: "Impressions",
+  clicks: "Clicks",
+  conversions: "Conversions",
+  spend: "Spend",
+  price: "Harga",
+};
+
 export default function DashboardPage() {
+  const [fields, setFields] = useState<PerfFields>({
+    impressions: "",
+    clicks: "",
+    conversions: "",
+    spend: "",
+    price: "",
+  });
+
+  function resetForm() {
+    setFields({
+      impressions: "",
+      clicks: "",
+      conversions: "",
+      spend: "",
+      price: "",
+    });
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
@@ -11,7 +47,6 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Form Card */}
       <div className="bg-white border border-gray-100 rounded-xl p-8 space-y-8">
         {/* Informasi Kampanye */}
         <section>
@@ -19,7 +54,6 @@ export default function DashboardPage() {
             <Info size={15} className="text-red-500" />
             Informasi Kampanye
           </h2>
-
           <div className="grid grid-cols-2 gap-5">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-gray-400">Nama Kampanye</label>
@@ -62,32 +96,23 @@ export default function DashboardPage() {
             <ChartColumn size={15} className="text-red-500" />
             Data Performa
           </h2>
-
           <div className="grid grid-cols-2 gap-5">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400">Impressions</label>
-              <input
-                type="number"
-                placeholder="0"
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50 placeholder-gray-300"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400">Clicks</label>
-              <input
-                type="number"
-                placeholder="0"
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50 placeholder-gray-300"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400">Conversions</label>
-              <input
-                type="number"
-                placeholder="0"
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50 placeholder-gray-300"
-              />
-            </div>
+            {(["impressions", "clicks", "conversions"] as const).map((key) => (
+              <div key={key} className="flex flex-col gap-1.5">
+                <label className="text-xs text-gray-400">
+                  {FIELD_LABELS[key]}
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={fields[key]}
+                  onChange={(e) =>
+                    setFields((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50 placeholder-gray-300"
+                />
+              </div>
+            ))}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-gray-400">Total Spend (Rp)</label>
               <div className="flex border border-gray-200 rounded-lg overflow-hidden focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-50">
@@ -97,6 +122,10 @@ export default function DashboardPage() {
                 <input
                   type="number"
                   placeholder="0"
+                  value={fields.spend}
+                  onChange={(e) =>
+                    setFields((f) => ({ ...f, spend: e.target.value }))
+                  }
                   className="flex-1 px-3 py-2 text-sm text-gray-800 outline-none placeholder-gray-300"
                 />
               </div>
@@ -116,6 +145,10 @@ export default function DashboardPage() {
                 <input
                   type="number"
                   placeholder="0"
+                  value={fields.price}
+                  onChange={(e) =>
+                    setFields((f) => ({ ...f, price: e.target.value }))
+                  }
                   className="flex-1 px-3 py-2 text-sm text-gray-800 outline-none placeholder-gray-300"
                 />
               </div>
@@ -126,7 +159,7 @@ export default function DashboardPage() {
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-6">
           <button
-            type="reset"
+            onClick={resetForm}
             className="text-sm text-gray-300 hover:text-gray-500 transition-colors"
           >
             Reset

@@ -20,6 +20,17 @@ export default function DashboardLayout({
   const router = useRouter();
   const [userName, setUserName] = useState("Loading...");
 
+  // Fungsi untuk mengambil inisial dari nama
+  const getInitials = (name: string) => {
+    if (!name || name === "Loading...") return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2); // Ambil maksimal 2 huruf (contoh: Aditya Romanov -> AR)
+  };
+
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => res.json())
@@ -43,6 +54,7 @@ export default function DashboardLayout({
       console.error("Logout failed:", error);
     }
   };
+
   const navItems = [
     { label: "Overview", icon: LayoutDashboard },
     { label: "Analytics", icon: ChartColumn, active: true },
@@ -52,18 +64,14 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-white text-gray-800 font-sans">
-      {/* SIDEBAR 
-          Menggunakan 'sticky top-0' dan 'h-screen' agar tetap diam saat konten di-scroll.
-          Hapus 'fixed' agar layout flexbox tetap sinkron.
-      */}
       <aside className="h-screen w-52 sticky top-0 bg-white border-r border-gray-100 flex flex-col py-6 shrink-0">
-        {/* LOGO — TOP */}
+        {/* LOGO */}
         <div className="px-5 flex items-center gap-3 font-bold">
           <img src="/logo.png" alt="AdvisorAI Logo" className="h-4 w-auto" />
           <p>AdsVisor</p>
         </div>
 
-        {/* NAV MENU — CENTERED */}
+        {/* NAV MENU */}
         <nav className="flex-1 flex flex-col justify-center gap-1 text-sm">
           {navItems.map(({ label, icon: Icon, active }) => (
             <a
@@ -101,9 +109,8 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      {/* RIGHT SIDE / MAIN CONTENT AREA */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* TOP NAVBAR — Juga bisa dibikin sticky jika mau */}
+        {/* TOP NAVBAR */}
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-100 flex items-center justify-between px-8 py-3">
           <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-72">
             <Search size={14} className="text-gray-400 shrink-0" />
@@ -113,15 +120,26 @@ export default function DashboardLayout({
             />
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50">
-              <Bell size={15} className="text-gray-500" />
+          <div className="flex items-center gap-4">
+            {/* Notification Bell dengan Red Dot sesuai gambar */}
+            <button className="relative w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors">
+              <Bell size={18} className="text-slate-700" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white" />
             </button>
-            <div className="text-right">
-              <p className="text-xs font-bold text-gray-800">{userName}</p>
-              <p className="text-[10px] text-gray-400">Premium Plan</p>
+
+            {/* Profile Section */}
+            <div className="flex items-center justify-center gap-3">
+              {/* Avatar Bulat Biru dengan Inisial */}
+              <div className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-[11px]">
+                {getInitials(userName)}
+              </div>
+
+              <div className="flex flex-col">
+                <p className="text-xs font-semibold text-slate-700 leading-tight">
+                  {userName}
+                </p>
+              </div>
             </div>
-            <div className="w-8 h-8 rounded-full bg-gray-300" />
           </div>
         </header>
 
