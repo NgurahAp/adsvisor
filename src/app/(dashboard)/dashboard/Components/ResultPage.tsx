@@ -3,6 +3,7 @@ import { ChevronLeft, Download, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import KPICard from "./KPICard";
 import TypewriterText from "./TypeWritterText";
+import { AnalysisData } from "@/lib/types";
 
 interface ResultPageProps {
   data: AnalysisData | null;
@@ -27,11 +28,12 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
 
   const { fields, kpis, analysis, timestamp } = data;
 
-  const tsStr = `${timestamp.toLocaleDateString("id-ID", {
+  const date = new Date(timestamp);
+  const tsStr = `${date.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
-  })}, ${timestamp.toLocaleTimeString("id-ID", {
+  })}, ${date.toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
   })}`;
@@ -62,7 +64,7 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
 
   return (
     <div
-      className={`max-w-3xl mx-auto py-8 px-4 transition-all duration-700 ${
+      className={`max-w-4xl mx-auto py-8 px-4 transition-all duration-700 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       }`}
     >

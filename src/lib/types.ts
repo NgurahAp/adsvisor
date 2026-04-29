@@ -1,4 +1,4 @@
-interface CampaignFields {
+export interface CampaignFields {
   name: string;
   platform: string;
   startDate: string;
@@ -10,14 +10,14 @@ interface CampaignFields {
   price: string;
 }
 
-interface KPIResult {
+export interface KPIResult {
   ctr: string | null;
   cpc: number | null;
   cpa: number | null;
   roas: string | null;
 }
 
-interface DummyAnalysis {
+export interface DummyAnalysis {
   summary: string;
   whatsWorking: string[];
   needsAttention: string[];
@@ -25,9 +25,59 @@ interface DummyAnalysis {
   priority: string;
 }
 
-interface AnalysisData {
+export interface AnalysisData {
   fields: CampaignFields;
   kpis: KPIResult;
   analysis: DummyAnalysis;
-  timestamp: Date;
+  timestamp: string;
 }
+
+// ─── History Types ────────────────────────────────────────────────────────────
+
+export type SortOption = "newest" | "oldest" | "roi_highest";
+export type RangeOption = "7" | "30" | "90";
+export type CampaignStatus = "on-track" | "warning" | "critical";
+
+export interface MetricItem {
+  label: string;
+  value: string;
+  delta?: string | null;
+  deltaUp?: boolean;
+}
+
+export interface HistoryCampaign {
+  id: string;
+  name: string;
+  platform: string;
+  status: CampaignStatus;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  metrics: MetricItem[];
+  kpis: KPIResult;
+  insight: string;
+}
+
+export interface HistoryMeta {
+  totalAnalisis: number;
+  avgROI: number | null;
+  anggaranTerkelola: number;
+  efisiensiAI: number;
+}
+
+export interface HistoryResponse {
+  campaigns: HistoryCampaign[];
+  meta: HistoryMeta;
+}
+
+// ─── API Response Types ───────────────────────────────────────────────────────
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  timestamp: string;
+}
+
+export type AnalyzeResponse = ApiResponse<AnalysisData>;
+export type HistoryApiResponse = ApiResponse<HistoryResponse>;

@@ -49,7 +49,7 @@ export default function DashboardPage({ onAnalyze }: DashboardProps) {
     setError("");
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!fields.impressions || !fields.clicks || !fields.spend) {
       setError("Minimal isi Impressions, Clicks, dan Total Spend ya.");
       return;
@@ -57,43 +57,38 @@ export default function DashboardPage({ onAnalyze }: DashboardProps) {
 
     setError("");
     setLoading(true);
-
-    setTimeout(() => {
-      const kpis = calcKPIs(fields);
-      const dummyAnalysis: DummyAnalysis = {
-        summary:
-          "Kampanye ini menunjukkan performa yang cukup solid di pasar lokal, terutama pada efisiensi biaya per klik (CPC). CTR Anda berada di atas rata-rata industri Indonesia sebesar 1.2%, yang menandakan materi kreatif cukup relevan bagi audiens target.",
-        whatsWorking: [
-          "Targeting audiens 'Interest' menunjukkan engagement rate tertinggi.",
-          "Materi iklan video 15 detik memiliki retensi penonton 40% lebih baik dibanding statis.",
-          "Biaya akuisisi (CPA) masih dalam batas margin keuntungan produk.",
-        ],
-        needsAttention: [
-          "Frekuensi iklan mulai menyentuh angka 3.2, waspada terhadap kejenuhan audiens.",
-          "Landing page load time di perangkat mobile melambat di angka 4.5 detik.",
-          "Konversi pada hari kerja (Weekdays) menurun signifikan dibanding akhir pekan.",
-        ],
-        recommendations: [
-          "Segera lakukan refresh materi kreatif (creative fatigue) untuk menurunkan frekuensi.",
-          "Optimasi ukuran gambar di landing page untuk mempercepat loading time.",
-          "Alokasikan 20% budget lebih banyak ke hari Sabtu dan Minggu untuk memaksimalkan ROAS.",
-        ],
-        priority:
-          "Lakukan Creative Refresh pada set iklan dengan frekuensi tertinggi hari ini juga.",
-      };
-
-      onAnalyze({
-        fields,
-        kpis,
-        analysis: dummyAnalysis,
-        timestamp: new Date(),
+    try {
+      const res = await fetch("/api/dashboard/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields }),
       });
+
+      const payload = await res.json();
+
+      if (!res.ok || !payload.success) {
+        throw new Error(payload?.message || "Gagal menganalisis campaign.");
+      }
+
+      if (payload.data) {
+        onAnalyze({
+          fields: payload.data.fields,
+          kpis: payload.data.kpis,
+          analysis: payload.data.analysis,
+          timestamp: payload.data.timestamp,
+        });
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Terjadi error saat proses analisis.";
+      setError(message);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto py-8 px-4">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">

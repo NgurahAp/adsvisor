@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardPage from "./Components/DashboardPage";
 import { ResultPage } from "./Components/ResultPage";
+import type { AnalysisData } from "@/lib/types";
 
 export default function AdvisorApp() {
   const [view, setView] = useState<"dashboard" | "result">("dashboard");
