@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Download,
   Plus,
@@ -53,11 +54,6 @@ interface ApiResponse {
   };
   message?: string;
   timestamp: string;
-}
-
-interface HistoryPageProps {
-  onNew: () => void;
-  onDetail?: (id: string) => void;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -308,7 +304,8 @@ function SkeletonCard() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function HistoryPage({ onNew, onDetail }: HistoryPageProps) {
+export default function HistoryPage({ onNew }: { onNew: () => void }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<FilterTab>("Semua");
   const [sortBy, setSortBy] = useState<SortOption>("Terbaru");
   const [range, setRange] = useState<RangeOption>("30 Hari Terakhir");
@@ -317,6 +314,10 @@ export default function HistoryPage({ onNew, onDetail }: HistoryPageProps) {
   const [meta, setMeta] = useState<SummaryStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const handleDetail = (id: string) => {
+    router.push(`/analysis/${id}`);
+  };
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -515,7 +516,7 @@ export default function HistoryPage({ onNew, onDetail }: HistoryPageProps) {
               <CampaignCard
                 key={campaign.id}
                 campaign={campaign}
-                onDetail={onDetail}
+                onDetail={handleDetail}
               />
             ))}
             {showEmpty && <EmptySlot onNew={onNew} />}
