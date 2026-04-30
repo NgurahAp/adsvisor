@@ -2,47 +2,78 @@
 import React, { useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  getFirstValidationError,
+  loginSchema,
+  type LoginFormValues,
+} from "@/lib/validations/auth";
+
+type LoginFieldErrors = Partial<Record<keyof LoginFormValues, string>>;
 
 const LoginPage = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
+  const [formData, setFormData] = useState<LoginFormValues>({
     email: "",
     password: "",
   });
 
+  const inputClassName = (hasError?: boolean) =>
+    `w-full px-4 py-2.5 rounded-xl border ${
+      hasError ? "border-red-300" : "border-gray-200"
+    } focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]`;
+
+  const updateField = (field: keyof LoginFormValues, value: string) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validatedFields = loginSchema.safeParse(formData);
+
+    if (!validatedFields.success) {
+      const errors = validatedFields.error.flatten().fieldErrors;
+      setFieldErrors({
+        email: errors.email?.[0],
+        password: errors.password?.[0],
+      });
+      toast.error(getFirstValidationError(validatedFields.error));
+      return;
+    }
+
     setLoading(true);
-    setError("");
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(validatedFields.data),
         credentials: "include",
       });
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.message || "Login gagal");
+        toast.error(data.message || "Login gagal");
         setLoading(false);
         return;
       }
 
       const data = await res.json();
       console.log("Login response:", data);
+      toast.success("Login berhasil");
 
       // Tunggu sebentar untuk memastikan cookie ter-set
       setTimeout(() => {
         window.location.replace("/dashboard");
-      }, 100);
+      }, 700);
     } catch (err) {
       console.error("Login error:", err);
-      setError("Terjadi kesalahan. Silakan coba lagi.");
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
       setLoading(false);
     }
   };
@@ -83,14 +114,8 @@ const LoginPage = () => {
               </p>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-[12px] mb-4">
-                {error}
-              </div>
-            )}
-
             {/* FORM */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[12px] font-bold text-slate-700 ml-1">
                   Email
@@ -99,12 +124,22 @@ const LoginPage = () => {
                   type="email"
                   placeholder="nama@email.com"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => updateField("email", e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={
+                    fieldErrors.email ? "login-email-error" : undefined
+                  }
+                  className={inputClassName(Boolean(fieldErrors.email))}
                 />
+                {fieldErrors.email && (
+                  <p
+                    id="login-email-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -116,11 +151,15 @@ const LoginPage = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Masukkan password"
                     value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    onChange={(e) => updateField("password", e.target.value)}
                     required
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={
+                      fieldErrors.password ? "login-password-error" : undefined
+                    }
+                    className={`${inputClassName(
+                      Boolean(fieldErrors.password),
+                    )} pr-10`}
                   />
                   <button
                     type="button"
@@ -130,6 +169,14 @@ const LoginPage = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p
+                    id="login-password-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               <button

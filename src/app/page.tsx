@@ -1,26 +1,31 @@
 "use client";
 
 import { BarChart3, Zap, FlaskConical, Sparkles } from "lucide-react";
-import { MetricCard } from "../components/MetricCard";
+import { PlatformIcon } from "./(dashboard)/dashboard/page";
 
 const AdvisorLandingPage = () => {
+  const platforms = ["Google Ads", "Facebook Ads", "Instagram Ads"];
+
   return (
     <div className="bg-white text-[#1a1c31] font-sans antialiased min-h-screen flex flex-col">
-      {/* 1. NAVBAR - Sticky */}
+      {/* ================= NAVBAR ================= */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Logo Section */}
           <div className="flex items-center gap-3 font-bold">
             <img src="/logo.png" alt="AdvisorAI Logo" className="h-4 w-auto" />
-            <p>AdsVisor</p>
+            <p className="text-sm">AdsVisor</p>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#1a1c31]">
+          <div className="hidden md:flex items-center gap-8 text-xs font-semibold">
             {["Product", "Features", "Pricing", "About"].map((item) => (
               <a
                 key={item}
                 href="#"
-                className={`pb-0.5 ${item === "Product" ? "text-[#E63946] border-b-2 border-[#E63946]" : "text-[#1a1c31] hover:text-[#E63946]"}`}
+                className={`pb-0.5 ${
+                  item === "Product"
+                    ? "text-[#E63946] border-b-2 border-[#E63946]"
+                    : "hover:text-[#E63946]"
+                }`}
               >
                 {item}
               </a>
@@ -28,15 +33,15 @@ const AdvisorLandingPage = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => window.location.href = '/login'}
-              className="text-sm font-semibold text-[#1a1c31] hover:text-[#E63946] transition-colors"
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="text-xs font-semibold hover:text-[#E63946]"
             >
               Login
             </button>
-            <button 
-              onClick={() => window.location.href = '/register'}
-              className="bg-[#E63946] text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-[#d62d3a] transition-colors"
+            <button
+              onClick={() => (window.location.href = "/register")}
+              className="bg-[#E63946] text-white px-4 py-1.5 rounded-full font-bold text-xs hover:bg-[#d62d3a]"
             >
               Mulai Analisis Gratis
             </button>
@@ -44,119 +49,163 @@ const AdvisorLandingPage = () => {
         </div>
       </nav>
 
-      {/* 2. HERO SECTION */}
-      <section className="bg-white flex-grow flex items-center py-16">
-        <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center w-full">
-          <div className="flex flex-col space-y-6">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fdf2f2] text-[#E63946] text-xs font-bold w-fit tracking-wide">
+      {/* ================= HERO ================= */}
+      <section className="bg-white pt-10 pb-10 px-10">
+        <div className="max-w-[1200px] mx-auto px-6 grid lg:grid-cols-[0.9fr_1.1fr] items-center ">
+          {/* LEFT */}
+          <div className="flex flex-col space-y-5">
+            <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-[#fdf2f2] text-[#E63946] text-[8px] font-bold w-fit tracking-wide">
               AI-POWERED ADS ADVISOR ✦
             </span>
 
-            <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.1] tracking-tight text-slate-900">
+            <h1 className="text-[28px] lg:text-[36px] font-extrabold leading-[1.18] tracking-tight text-slate-900">
               Ubah Data Iklanmu
               <br />
-              Jadi Keputusan
+              <span className="text-[#E63946]">Jadi Keputusan</span>
               <br />
               yang Tepat
             </h1>
 
-            <p className="text-base text-slate-600 max-w-[450px] leading-relaxed">
+            <p className="text-[12px] text-slate-500 max-w-[380px] leading-relaxed">
               Analisis CTR, CPC, CPA & ROAS kampanye Facebook, Google & TikTok
-              Ads kamu — lalu dapatkan rekomendasi AI dalam 2 menit.
+              Ads kamu — lalu dapatkan rekomendasi AI dalam{" "}
+              <span className="text-[#E63946] font-semibold">2 menit.</span>
             </p>
 
-            <div className="flex items-center gap-6 pt-2">
-              <button 
-                onClick={() => window.location.href = '/register'}
-                className="bg-[#E63946] text-white px-6 py-3 rounded-xl font-bold text-base flex items-center gap-2 hover:bg-[#d62d3a] transition-all shadow-md active:scale-95"
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                onClick={() => (window.location.href = "/register")}
+                className="bg-[#E63946] text-white px-4 py-2 rounded-xl font-semibold text-[12px] shadow-md hover:bg-[#d62d3a]"
               >
                 Mulai Analisis Gratis →
               </button>
-              <button 
-                onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                className="font-bold text-slate-500 text-sm flex items-center gap-1.5 hover:text-[#E63946] transition-colors"
+
+              <button
+                onClick={() =>
+                  window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: "smooth",
+                  })
+                }
+                className="font-semibold text-slate-400 text-[10px] hover:text-[#E63946]"
               >
-                Lihat Cara Kerjanya <span className="text-lg">↓</span>
+                Lihat Cara Kerjanya ↓
               </button>
             </div>
           </div>
 
-          <div className="relative scale-90 lg:scale-95 origin-center lg:origin-right">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] relative">
-              <div className="flex gap-1.5 mb-6">
-                <div className="w-2.5 h-2.5 bg-red-400 rounded-full"></div>
-                <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
-                <div className="w-2.5 h-2.5 bg-green-400 rounded-full"></div>
-                <span className="ml-auto text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                  Dashboard Analisis •{" "}
-                  <span className="text-emerald-500">Live</span>
-                </span>
+          {/* RIGHT IMAGE */}
+          <div className="relative w-full lg:pl-6">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-white rounded-xl blur-2xl opacity-60" />
+
+            <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.15)]">
+              <img
+                src="/dashboard.png"
+                alt="AdsVisor Dashboard"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-5 px-10">
+        <div className="max-w-[1100px] mx-auto px-6 grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
+          {/* LEFT — INTEGRATION LOGOS (SMALL VERSION) */}
+          <div>
+            <p className="text-[8px] text-slate-400 font-semibold mb-4 uppercase tracking-wider">
+              Integrasi Platform Ads
+            </p>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              {platforms.map((platform) => (
+                <div
+                  key={platform}
+                  className="flex items-center text-[10px] font-semibold text-slate-400 grayscale opacity-70"
+                >
+                  <PlatformIcon platform={platform} />
+                  {platform}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT — FEATURES (COMPACT VERSION) */}
+          <div className="grid grid-cols-3 gap-8">
+            <div className="flex gap-2.5 items-start">
+              <div className="w-7 h-7 bg-red-50 rounded-md flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-[#E63946]" />
               </div>
+              <div>
+                <p className="font-bold text-[11px] leading-tight">
+                  Insight AI Otomatis
+                </p>
+                <p className="text-[9px] text-slate-400">
+                  Rekomendasi optimasi instan.
+                </p>
+              </div>
+            </div>
 
-              <div className="relative">
-                <div className="grid grid-cols-2 gap-4">
-                  <MetricCard title="CTR" value="2.45%" change="+ 0.41%" isUp />
-                  <MetricCard
-                    title="CPC"
-                    value="Rp 1.250"
-                    change="+ 12%"
-                    isUp
-                  />
-                  <MetricCard
-                    title="CPA"
-                    value="15.000"
-                    change="Stable"
-                    isStable
-                  />
-                  <MetricCard title="ROAS" value="4.2x" change="+ 1.1x" isUp />
-                </div>
+            <div className="flex gap-2.5 items-start">
+              <div className="w-7 h-7 bg-red-50 rounded-md flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-[#E63946]" />
+              </div>
+              <div>
+                <p className="font-bold text-[11px] leading-tight">
+                  Analisis Cepat
+                </p>
+                <p className="text-[9px] text-slate-400">
+                  Insight dalam hitungan menit.
+                </p>
+              </div>
+            </div>
 
-                <div className="mt-5 p-4 rounded-xl border border-blue-100 bg-white shadow-sm">
-                  <p className="font-bold text-xs text-[#E63946] mb-1.5 flex items-center gap-1.5">
-                    ✨ AI Insights & Recommendation
-                  </p>
-                  <p className="text-[13px] text-slate-600 leading-relaxed italic">
-                    "Kampanye Google Search kamu menunjukkan performa CTR di
-                    atas rata-rata industri. Fokuskan budget 30% lebih
-                    banyak..."
-                  </p>
-                </div>
+            <div className="flex gap-2.5 items-start">
+              <div className="w-7 h-7 bg-red-50 rounded-md flex items-center justify-center">
+                <BarChart3 className="w-3.5 h-3.5 text-[#E63946]" />
+              </div>
+              <div>
+                <p className="font-bold text-[11px] leading-tight">
+                  Semua Platform
+                </p>
+                <p className="text-[9px] text-slate-400">
+                  Google, Meta & TikTok Ads.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. BENTO FEATURES SECTION */}
-      <section className="bg-white py-20">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-slate-900 mb-3">
+      <section className="bg-white py-14">
+        <div className="max-w-[1100px] mx-auto px-6">
+          {/* TITLE */}
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-semibold text-slate-900 ">
               Fitur Utama Untuk Pertumbuhan
             </h2>
-            <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
-              Kami tidak hanya memberikan data, kami memberikan strategi yang
-              didukung oleh data real-time.
+            <p className="text-sm text-slate-500 max-w-lg mx-auto leading-relaxed">
+              Bukan sekadar data — tapi strategi berbasis performa real-time.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-            {/* Multi-Platform */}
-            <div className="md:col-span-8 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
-              <div className="bg-[#E63946] w-9 h-9 rounded-lg flex items-center justify-center mb-5">
-                <BarChart3 className="text-white w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            {/* Multi Platform */}
+            <div className="md:col-span-8 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group">
+              <div className="bg-[#E63946] w-8 h-8 rounded-md flex items-center justify-center mb-4">
+                <BarChart3 className="text-white w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold mb-3">
-                Multi–Platform Centralization
+              <h3 className="text-[16px] font-bold mb-2">
+                Multi-Platform Centralization
               </h3>
-              <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
-                Hubungkan semua akun iklanmu dan lihat gambaran besar bisnismu
-                tanpa harus berpindah tab.
+              <p className="text-[12px] text-slate-500 max-w-xs">
+                Semua akun ads dalam satu dashboard.
               </p>
-              <div className="absolute right-[-10px] bottom-[-10px] opacity-5 group-hover:opacity-10 transition-opacity">
+
+              <div className="absolute right-[-10px] bottom-[-10px] opacity-5">
                 <svg
-                  width="150"
-                  height="150"
+                  width="130"
+                  height="130"
                   viewBox="0 0 200 200"
                   fill="currentColor"
                 >
@@ -175,43 +224,37 @@ const AdvisorLandingPage = () => {
               </div>
             </div>
 
-            {/* Real-time Alert */}
-            <div className="md:col-span-4 bg-[#006070] rounded-3xl p-8 text-white">
-              <Zap className="text-white w-7 h-7 mb-5 fill-white" />
-              <h3 className="text-xl font-bold mb-3">Real-time Alert</h3>
-              <p className="text-xs text-teal-50/80 leading-relaxed">
-                Dapatkan notifikasi instan saat biaya per klik melonjak atau
-                ROAS menurun drastis.
+            {/* Real-time alert */}
+            <div className="md:col-span-4 bg-[#006070] rounded-2xl p-6 text-white">
+              <Zap className="w-6 h-6 mb-4 fill-white" />
+              <h3 className="text-[16px] font-bold mb-2">Real-time Alert</h3>
+              <p className="text-[11px] text-teal-50/80">
+                Notifikasi saat performa campaign berubah drastis.
               </p>
             </div>
 
-            {/* A/B Test AI */}
-            <div className="md:col-span-4 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-              <div className=" w-10 h-10 rounded-lg flex items-center justify-center mb-5">
-                <FlaskConical className="text-blue-600 w-5 h-5" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">A/B Test AI</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Biar AI kami yang menentukan mana materi kreatif yang paling
-                berpotensi memenangkan audiens.
+            {/* AB Test */}
+            <div className="md:col-span-4 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <FlaskConical className="text-blue-600 w-4 h-4 mb-4" />
+              <h3 className="text-[16px] font-bold mb-2">AI A/B Testing</h3>
+              <p className="text-[12px] text-slate-500">
+                AI memilih kreatif terbaik otomatis.
               </p>
             </div>
 
-            {/* Smart Budgeting */}
-            <div className="md:col-span-8 bg-[#fff5f5] rounded-3xl p-8 border border-red-50 flex flex-col md:flex-row items-center gap-6 overflow-hidden">
+            {/* Smart budgeting */}
+            <div className="md:col-span-8 bg-[#fff5f5] rounded-2xl p-6 border border-red-50 flex flex-col md:flex-row items-center gap-5">
               <div className="flex-1">
-                <div className="bg-white w-9 h-9 rounded-lg flex items-center justify-center mb-5 shadow-sm">
-                  <Sparkles className="text-[#E63946] w-5 h-5" />
+                <div className="bg-white w-8 h-8 rounded-md flex items-center justify-center mb-4 shadow-sm">
+                  <Sparkles className="text-[#E63946] w-4 h-4" />
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">
-                  Smart Budgeting
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Alokasi otomatis anggaran iklanmu ke kampanye dengan performa
-                  tertinggi setiap hari.
+                <h3 className="text-[16px] font-bold mb-2">Smart Budgeting</h3>
+                <p className="text-[12px] text-slate-500">
+                  Anggaran otomatis ke campaign performa terbaik.
                 </p>
               </div>
-              <div className="w-full md:w-40 bg-white rounded-xl p-4 shadow-sm border border-red-100 flex flex-col gap-2">
+
+              <div className="w-full md:w-36 bg-white rounded-lg p-3 shadow-sm border border-red-100 flex flex-col gap-2">
                 <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full bg-[#E63946] w-[70%]" />
                 </div>

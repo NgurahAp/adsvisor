@@ -72,6 +72,13 @@ export default function AnalysisDetailPage() {
   }
 
   const { fields, kpis, analysis, timestamp } = data;
+  const aiAnalysis = analysis ?? {
+    summary: "Analisis AI belum tersedia untuk kampanye ini.",
+    whatsWorking: [],
+    needsAttention: [],
+    recommendations: [],
+    priority: "Jalankan ulang analisis untuk mendapatkan rekomendasi AI.",
+  };
 
   const date = new Date(timestamp);
   const tsStr = `${date.toLocaleDateString("id-ID", {
@@ -239,7 +246,7 @@ export default function AnalysisDetailPage() {
             Performance Summary
           </p>
           <p className="text-sm text-gray-600 leading-relaxed italic border-l-2 border-[#E63946]/20 pl-4">
-            <TypewriterText text={analysis.summary} speed={8} />
+            <TypewriterText text={aiAnalysis.summary} speed={8} />
           </p>
         </div>
 
@@ -247,10 +254,10 @@ export default function AnalysisDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-              What's Working
+              What&apos;s Working
             </p>
             <div className="space-y-3">
-              {analysis.whatsWorking.map((item, i) => (
+              {aiAnalysis.whatsWorking.map((item, i) => (
                 <div
                   key={i}
                   className="flex items-start gap-3 text-sm text-gray-600"
@@ -266,7 +273,7 @@ export default function AnalysisDetailPage() {
               Needs Attention
             </p>
             <div className="space-y-3">
-              {analysis.needsAttention.map((item, i) => (
+              {aiAnalysis.needsAttention.map((item, i) => (
                 <div
                   key={i}
                   className="flex items-start gap-3 text-sm text-gray-600"
@@ -285,7 +292,7 @@ export default function AnalysisDetailPage() {
             Recommendations
           </p>
           <div className="space-y-3">
-            {analysis.recommendations.map((item, i) => (
+            {aiAnalysis.recommendations.map((item, i) => (
               <div
                 key={i}
                 className="flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100 items-center"
@@ -314,7 +321,7 @@ export default function AnalysisDetailPage() {
             Priority Today
           </p>
           <p className="text-sm text-white font-bold leading-relaxed">
-            {analysis.priority}
+            {aiAnalysis.priority}
           </p>
         </div>
       </div>

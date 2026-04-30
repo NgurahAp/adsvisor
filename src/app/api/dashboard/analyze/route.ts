@@ -40,53 +40,18 @@ function computeKpis(fields: CampaignFields): KPIResult {
   const price = toNumber(fields.price);
 
   const ctr =
-    impressions > 0 ? toFixedNumber((clicks / impressions) * 100, 2).toFixed(2) : null;
+    impressions > 0
+      ? toFixedNumber((clicks / impressions) * 100, 2).toFixed(2)
+      : null;
   const cpc = clicks > 0 ? Math.round(spend / clicks) : null;
   const cpa = conversions > 0 ? Math.round(spend / conversions) : null;
   const revenue = conversions * price;
   const roas =
-    spend > 0 && revenue > 0 ? toFixedNumber(revenue / spend, 2).toFixed(1) : null;
+    spend > 0 && revenue > 0
+      ? toFixedNumber(revenue / spend, 2).toFixed(1)
+      : null;
 
   return { ctr, cpc, cpa, roas };
-}
-
-function buildBasicAnalysis(kpis: KPIResult): DummyAnalysis {
-  const roasValue = kpis.roas !== null ? Number(kpis.roas) : null;
-  const ctrValue = kpis.ctr !== null ? Number(kpis.ctr) : null;
-
-  const roasSummary =
-    roasValue === null
-      ? "ROAS belum tersedia karena harga produk atau konversi belum diisi."
-      : roasValue >= 3
-        ? `ROAS ${kpis.roas}x menunjukkan kampanye sudah menghasilkan return yang sehat.`
-        : `ROAS ${kpis.roas}x masih bisa ditingkatkan dengan optimasi targeting dan kreatif.`;
-
-  const ctrSummary =
-    ctrValue === null
-      ? "CTR belum tersedia."
-      : ctrValue >= 1.5
-        ? `CTR ${kpis.ctr}% sudah cukup baik untuk menjaga traffic tetap stabil.`
-        : `CTR ${kpis.ctr}% masih relatif rendah dan butuh evaluasi pesan iklan.`;
-
-  return {
-    summary: `${roasSummary} ${ctrSummary}`,
-    whatsWorking: [
-      "Data campaign sudah tersimpan otomatis ke database.",
-      "Metrik inti (CTR, CPC, CPA, ROAS) sudah dihitung dari data aktual.",
-      "Format hasil siap dipakai untuk analisis AI lanjutan.",
-    ],
-    needsAttention: [
-      "Insight AI detail belum diaktifkan pada tahap ini.",
-      "Pastikan data conversion dan harga produk terisi agar ROAS lebih akurat.",
-      "Lakukan monitoring performa antar periode untuk melihat tren.",
-    ],
-    recommendations: [
-      "Pertahankan creative dengan CTR tertinggi.",
-      "Uji A/B audience untuk menurunkan CPC dan CPA.",
-      "Optimalkan funnel landing page agar conversion rate naik.",
-    ],
-    priority: "Fokus pada peningkatan konversi untuk mendorong ROAS ke atas 3x.",
-  };
 }
 
 export async function POST(req: NextRequest) {
@@ -112,7 +77,6 @@ export async function POST(req: NextRequest) {
 
   const platform = PLATFORM_TO_ENUM[fields.platform] ?? Platform.facebook;
   const kpis = computeKpis(fields);
-  const analysisText = buildBasicAnalysis(kpis);
   const userId = BigInt(verified.userId as string);
 
   const impressions = Math.max(0, Math.round(toNumber(fields.impressions)));
@@ -148,7 +112,7 @@ export async function POST(req: NextRequest) {
         cpc: kpis.cpc ?? 0,
         cpa: kpis.cpa ?? 0,
         roas: kpis.roas !== null ? Number(kpis.roas) : null,
-        ai_analysis: JSON.stringify(analysisText),
+        ai_analysis: null,
       },
     });
 
@@ -165,7 +129,7 @@ export async function POST(req: NextRequest) {
         name: created.campaign.campaign_name,
       },
       kpis,
-      analysis: analysisText,
+      analysis: null,
       timestamp: new Date().toISOString(),
     },
     timestamp: new Date().toISOString(),

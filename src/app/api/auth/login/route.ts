@@ -2,10 +2,20 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signJwt } from "@/lib/jwt";
+import { getFirstValidationError, loginSchema } from "@/lib/validations/auth";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { email, password } = body;
+  const validatedFields = loginSchema.safeParse(body);
+
+  if (!validatedFields.success) {
+    return NextResponse.json(
+      { message: getFirstValidationError(validatedFields.error) },
+      { status: 400 },
+    );
+  }
+
+  const { email, password } = validatedFields.data;
 
   const user = await prisma.user.findUnique({
     where: { email },
@@ -30,9 +40,9 @@ export async function POST(req: Request) {
     email: user.email,
   });
 
-  const response = NextResponse.json({ 
+  const response = NextResponse.json({
     message: "Login success",
-    redirect: "/dashboard"
+    redirect: "/dashboard",
   });
 
   response.cookies.set("token", token, {

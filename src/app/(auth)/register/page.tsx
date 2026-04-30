@@ -2,55 +2,85 @@
 import React, { useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  getFirstValidationError,
+  registerFormSchema,
+  type RegisterFormValues,
+} from "@/lib/validations/auth";
+
+type RegisterFieldErrors = Partial<Record<keyof RegisterFormValues, string>>;
 
 const RegisterPage = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
+  const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
+  const [formData, setFormData] = useState<RegisterFormValues>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
+  const inputClassName = (hasError?: boolean) =>
+    `w-full px-4 py-2.5 rounded-xl border ${
+      hasError ? "border-red-300" : "border-gray-200"
+    } focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]`;
+
+  const updateField = (field: keyof RegisterFormValues, value: string) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Password tidak cocok");
-      setLoading(false);
+    const validatedFields = registerFormSchema.safeParse(formData);
+
+    if (!validatedFields.success) {
+      const errors = validatedFields.error.flatten().fieldErrors;
+      setFieldErrors({
+        name: errors.name?.[0],
+        email: errors.email?.[0],
+        password: errors.password?.[0],
+        confirmPassword: errors.confirmPassword?.[0],
+      });
+      toast.error(getFirstValidationError(validatedFields.error));
       return;
     }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
+          name: validatedFields.data.name,
+          email: validatedFields.data.email,
+          password: validatedFields.data.password,
         }),
         credentials: "include",
       });
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.message || "Registrasi gagal");
+        toast.error(data.message || "Registrasi gagal");
         setLoading(false);
         return;
       }
 
+      toast.success("Registrasi berhasil");
+
       // Redirect langsung
-      window.location.replace("/dashboard");
+      setTimeout(() => {
+        window.location.replace("/dashboard");
+      }, 700);
     } catch (err) {
       console.error("Register error:", err);
-      setError("Terjadi kesalahan. Silakan coba lagi.");
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
       setLoading(false);
     }
   };
@@ -91,14 +121,8 @@ const RegisterPage = () => {
               </p>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-[12px] mb-4">
-                {error}
-              </div>
-            )}
-
             {/* FORM */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[12px] font-bold text-slate-700 ml-1">
                   Nama Lengkap
@@ -107,12 +131,22 @@ const RegisterPage = () => {
                   type="text"
                   placeholder="Masukkan nama lengkap"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => updateField("name", e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={
+                    fieldErrors.name ? "register-name-error" : undefined
+                  }
+                  className={inputClassName(Boolean(fieldErrors.name))}
                 />
+                {fieldErrors.name && (
+                  <p
+                    id="register-name-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -123,12 +157,22 @@ const RegisterPage = () => {
                   type="email"
                   placeholder="nama@email.com"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => updateField("email", e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={
+                    fieldErrors.email ? "register-email-error" : undefined
+                  }
+                  className={inputClassName(Boolean(fieldErrors.email))}
                 />
+                {fieldErrors.email && (
+                  <p
+                    id="register-email-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -140,12 +184,18 @@ const RegisterPage = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Buat password"
                     value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    onChange={(e) => updateField("password", e.target.value)}
                     required
                     minLength={6}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={
+                      fieldErrors.password
+                        ? "register-password-error"
+                        : undefined
+                    }
+                    className={`${inputClassName(
+                      Boolean(fieldErrors.password),
+                    )} pr-10`}
                   />
                   <button
                     type="button"
@@ -155,6 +205,14 @@ const RegisterPage = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p
+                    id="register-password-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -167,13 +225,18 @@ const RegisterPage = () => {
                     placeholder="Ulangi password"
                     value={formData.confirmPassword}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
+                      updateField("confirmPassword", e.target.value)
                     }
                     required
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#E63946] focus:ring-4 focus:ring-[#E63946]/5 outline-none text-[13px]"
+                    aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                    aria-describedby={
+                      fieldErrors.confirmPassword
+                        ? "register-confirm-password-error"
+                        : undefined
+                    }
+                    className={`${inputClassName(
+                      Boolean(fieldErrors.confirmPassword),
+                    )} pr-10`}
                   />
                   <button
                     type="button"
@@ -187,6 +250,14 @@ const RegisterPage = () => {
                     )}
                   </button>
                 </div>
+                {fieldErrors.confirmPassword && (
+                  <p
+                    id="register-confirm-password-error"
+                    className="ml-1 text-[11px] font-medium text-red-600"
+                  >
+                    {fieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
 
               <button

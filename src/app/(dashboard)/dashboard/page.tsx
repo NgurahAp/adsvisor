@@ -46,7 +46,7 @@ function extractROI(campaign: HistoryCampaign): string | null {
 
 // ─── Platform Icon ─────────────────────────────────────────────────────────────
 
-function PlatformIcon({ platform }: { platform: string }) {
+export function PlatformIcon({ platform }: { platform: string }) {
   if (platform === "Google Ads") {
     return (
       <div className="flex mr-3 items-center justify-center flex-shrink-0 rounded-xl ">
