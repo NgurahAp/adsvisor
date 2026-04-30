@@ -12,6 +12,12 @@ import {
   BarChart2,
   Loader2,
 } from "lucide-react";
+import {
+  HistoryApiResponse,
+  HistoryCampaign,
+  HistoryMeta,
+  MetricItem,
+} from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,43 +26,6 @@ type Status = "on-track" | "warning" | "critical";
 type FilterTab = "Semua" | Platform;
 type SortOption = "Terbaru" | "Tertua" | "ROI Tertinggi";
 type RangeOption = "7 Hari Terakhir" | "30 Hari Terakhir" | "90 Hari Terakhir";
-
-interface CampaignMetric {
-  label: string;
-  value: string;
-  delta?: string;
-  deltaUp?: boolean;
-}
-
-interface CampaignHistory {
-  id: string;
-  name: string;
-  platform: Platform;
-  status: Status;
-  startDate: string;
-  endDate: string;
-  metrics: CampaignMetric[];
-  insight: string;
-}
-
-interface SummaryStats {
-  totalAnalisis: number;
-  avgROI: number | null;
-  anggaranTerkelola: number;
-  efisiensiAI: number;
-}
-
-interface ApiResponse {
-  success: boolean;
-  data?: {
-    campaigns: CampaignHistory[];
-    meta: SummaryStats;
-  };
-  message?: string;
-  timestamp: string;
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const PLATFORM_BADGE_CLASS: Record<Platform, string> = {
   "Google Ads": "bg-yellow-500",
@@ -143,7 +112,7 @@ function StatusBadge({ status }: { status: Status }) {
   );
 }
 
-function MetricItem({ metric }: { metric: CampaignMetric }) {
+function MetricItemComponents({ metric }: { metric: MetricItem }) {
   return (
     <div className="space-y-0.5">
       <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
@@ -174,11 +143,11 @@ function CampaignCard({
   campaign,
   onDetail,
 }: {
-  campaign: CampaignHistory;
+  campaign: HistoryCampaign;
   onDetail?: (id: string) => void;
 }) {
-  const badgeClass = PLATFORM_BADGE_CLASS[campaign.platform];
-
+  const badgeClass =
+    PLATFORM_BADGE_CLASS[campaign.platform as Platform] ?? "bg-gray-500";
   function handleDownload() {
     const metricsText = campaign.metrics
       .map((m) => `${m.label}: ${m.value}${m.delta ? ` (${m.delta})` : ""}`)
@@ -216,13 +185,13 @@ function CampaignCard({
       {/* Metrics */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-3">
         {campaign.metrics.map((m) => (
-          <MetricItem key={m.label} metric={m} />
+          <MetricItemComponents key={m.label} metric={m} />
         ))}
       </div>
 
       {/* Insight */}
       {campaign.insight && (
-        <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+        <div className="flex items-start gap-2  border border-red-100 rounded-lg px-3 py-2">
           <BarChart2
             size={12}
             strokeWidth={2.5}
@@ -304,19 +273,23 @@ function SkeletonCard() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function HistoryPage({ onNew }: { onNew: () => void }) {
+export default function HistoryPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<FilterTab>("Semua");
   const [sortBy, setSortBy] = useState<SortOption>("Terbaru");
   const [range, setRange] = useState<RangeOption>("30 Hari Terakhir");
 
-  const [campaigns, setCampaigns] = useState<CampaignHistory[]>([]);
-  const [meta, setMeta] = useState<SummaryStats | null>(null);
+  const [campaigns, setCampaigns] = useState<HistoryCampaign[]>([]);
+  const [meta, setMeta] = useState<HistoryMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const handleDetail = (id: string) => {
     router.push(`/analysis/${id}`);
+  };
+
+  const handleNewAnalysis = () => {
+    router.push("/dashboard");
   };
 
   const fetchHistory = useCallback(async () => {
@@ -333,7 +306,7 @@ export default function HistoryPage({ onNew }: { onNew: () => void }) {
       if (platformParam) params.set("platform", platformParam);
 
       const res = await fetch(`/api/dashboard/history?${params.toString()}`);
-      const payload: ApiResponse = await res.json();
+      const payload: HistoryApiResponse = await res.json();
 
       if (!res.ok || !payload.success) {
         throw new Error(payload.message || "Gagal memuat riwayat kampanye.");
@@ -387,7 +360,7 @@ export default function HistoryPage({ onNew }: { onNew: () => void }) {
             Export Report
           </button>
           <button
-            onClick={onNew}
+            onClick={handleNewAnalysis}
             className="flex items-center gap-2 bg-[#E63946] hover:bg-[#d62d3a] text-white px-5 py-2 rounded-xl text-[11px] font-bold uppercase transition-all active:scale-95 shadow-lg shadow-red-100"
           >
             <Plus size={14} />
@@ -519,7 +492,7 @@ export default function HistoryPage({ onNew }: { onNew: () => void }) {
                 onDetail={handleDetail}
               />
             ))}
-            {showEmpty && <EmptySlot onNew={onNew} />}
+            {showEmpty && <EmptySlot onNew={handleNewAnalysis} />}
           </>
         )}
       </div>

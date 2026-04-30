@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await tx.analysis.create({
+    const analysis = await tx.analysis.create({
       data: {
         user_id: userId,
         campaign_id: campaign.id,
@@ -152,16 +152,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return campaign;
+    return { campaign, analysis };
   });
 
   const response: AnalyzeResponse = {
     success: true,
     data: {
+      analysisId: created.analysis.id.toString(),
       fields: {
         ...fields,
         platform: ENUM_TO_PLATFORM_LABEL[platform],
-        name: created.campaign_name,
+        name: created.campaign.campaign_name,
       },
       kpis,
       analysis: analysisText,

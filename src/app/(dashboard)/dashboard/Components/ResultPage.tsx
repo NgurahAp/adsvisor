@@ -1,9 +1,9 @@
-import { fmt, fmtRp } from "@/helper/fmt";
-import { ChevronLeft, Download, Sparkles } from "lucide-react";
+import { fmt, fmtRp, fmtDate } from "@/helper/fmt";
+import { ChevronLeft, Download, Sparkles, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import KPICard from "./KPICard";
 import TypewriterText from "./TypeWritterText";
-import { AnalysisData } from "@/lib/types";
+import { AnalysisData, DummyAnalysis, KPIResult } from "@/lib/types";
 
 interface ResultPageProps {
   data: AnalysisData | null;
@@ -17,16 +17,206 @@ const PLATFORM_COLORS: Record<string, string> = {
   "Instagram Ads": "bg-[#E1306C]",
 };
 
+function AIAnalysisIdle({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-14 gap-5">
+      <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center">
+        <Sparkles size={20} className="text-gray-300" />
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-[12px] font-bold text-gray-700">
+          Analisis AI belum dimulai
+        </p>
+        <p className="text-[11px] text-gray-400 leading-relaxed">
+          Klik tombol di bawah untuk mendapatkan insight mendalam dari AI
+        </p>
+      </div>
+      <button
+        onClick={onStart}
+        className="flex items-center gap-2 bg-[#E63946] hover:bg-[#d62d3a] active:scale-95 text-white px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all shadow-lg shadow-red-100"
+      >
+        <Sparkles size={13} fill="currentColor" />
+        Mulai Analisis AI
+      </button>
+    </div>
+  );
+}
+
+function AIAnalysisLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-4">
+      <div className="relative">
+        <Sparkles size={22} className="text-[#E63946]" fill="currentColor" />
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#E63946] rounded-full animate-ping opacity-60" />
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-700">
+          AI sedang menganalisis...
+        </p>
+        <p className="text-[10px] text-gray-400">
+          Ini mungkin memakan beberapa detik
+        </p>
+      </div>
+      <div className="flex gap-1.5 mt-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-[#E63946]/40 animate-bounce"
+            style={{ animationDelay: `${i * 150}ms` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AIAnalysisError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 gap-3">
+      <p className="text-[11px] text-gray-500">Gagal memuat analisis AI.</p>
+      <button
+        onClick={onRetry}
+        className="text-[11px] font-bold text-[#E63946] border border-[#E63946]/30 px-4 py-1.5 rounded-lg hover:bg-red-50 transition-colors uppercase"
+      >
+        Coba Lagi
+      </button>
+    </div>
+  );
+}
+
+function AIAnalysisContent({
+  analysis,
+  tsStr,
+}: {
+  analysis: DummyAnalysis;
+  tsStr: string;
+}) {
+  return (
+    <>
+      <div className="mb-8 space-y-3">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          Performance Summary
+        </p>
+        <p className="text-sm text-gray-600 leading-relaxed italic border-l-2 border-[#E63946]/20 pl-4">
+          <TypewriterText text={analysis.summary} speed={8} />
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+            What's Working
+          </p>
+          <div className="space-y-3">
+            {analysis.whatsWorking.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 text-sm text-gray-600"
+              >
+                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                <span className="font-medium">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+            Needs Attention
+          </p>
+          <div className="space-y-3">
+            {analysis.needsAttention.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 text-sm text-gray-600"
+              >
+                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#E63946] shrink-0" />
+                <span className="font-medium">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8 pt-6 border-t border-gray-50">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+          Recommendations
+        </p>
+        <div className="space-y-3">
+          {analysis.recommendations.map((item, i) => (
+            <div
+              key={i}
+              className="flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100 items-center"
+            >
+              <div className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-[10px] font-bold text-gray-700">
+                {i + 1}
+              </div>
+              <span className="text-sm text-gray-700 font-medium">{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-4 bg-gray-900 rounded-xl relative">
+        <div className="absolute top-0 right-0 p-3 opacity-30">
+          <Sparkles size={14} className="text-[#E63946]" fill="currentColor" />
+        </div>
+        <p className="text-[9px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-1">
+          Priority Today
+        </p>
+        <p className="text-sm text-white font-bold leading-relaxed">
+          {analysis.priority}
+        </p>
+      </div>
+    </>
+  );
+}
+
 export function ResultPage({ data, onNew }: ResultPageProps) {
   const [visible, setVisible] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<DummyAnalysis | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
+  const [aiStarted, setAiStarted] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
   }, []);
 
+  async function fetchAiAnalysis() {
+    if (!data) return;
+    setAiStarted(true);
+    setAiLoading(true);
+    setAiError(false);
+
+    try {
+      const res = await fetch("/api/dashboard/analyzeWithAI", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          analysisId: data.analysisId,
+          fields: data.fields,
+          kpis: data.kpis,
+        }),
+      });
+
+      const payload = await res.json();
+
+      if (!res.ok || !payload.success) {
+        throw new Error(payload.message || "Gagal mendapatkan analisis AI.");
+      }
+
+      setAiAnalysis(payload.data.analysis);
+    } catch (err) {
+      console.error("[AI Analysis]", err);
+      setAiError(true);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   if (!data) return null;
 
-  const { fields, kpis, analysis, timestamp } = data;
+  const { fields, kpis, timestamp } = data;
 
   const date = new Date(timestamp);
   const tsStr = `${date.toLocaleDateString("id-ID", {
@@ -52,7 +242,6 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
   const platformColor = PLATFORM_COLORS[fields.platform] ?? "bg-[#E63946]";
 
   type StatRow = [string, string];
-
   const statRows: StatRow[] = [
     ["Impressions", fmt(fields.impressions)],
     ["Clicks", fmt(fields.clicks)],
@@ -119,7 +308,7 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
           )}
           {(fields.startDate || fields.endDate) && (
             <span className="text-[11px] text-gray-400 font-medium">
-              {fields.startDate || "?"} – {fields.endDate || "?"}
+              {fmtDate(fields.startDate)} – {fmtDate(fields.endDate)}
             </span>
           )}
         </div>
@@ -185,94 +374,22 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
               size={14}
               className="text-[#E63946]"
               fill="currentColor"
-            />{" "}
+            />
             AI Analysis
           </div>
-          <span className="text-[10px] text-gray-300 font-medium uppercase">
-            Last Updated: {tsStr}
-          </span>
+          {aiAnalysis && (
+            <span className="text-[10px] text-gray-300 font-medium uppercase">
+              Last Updated: {tsStr}
+            </span>
+          )}
         </div>
 
-        <div className="mb-8 space-y-3">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            Performance Summary
-          </p>
-          <p className="text-sm text-gray-600 leading-relaxed italic border-l-2 border-[#E63946]/20 pl-4">
-            <TypewriterText text={analysis.summary} speed={8} />
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-              What's Working
-            </p>
-            <div className="space-y-3">
-              {analysis.whatsWorking.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 text-sm text-gray-600"
-                >
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-              Needs Attention
-            </p>
-            <div className="space-y-3">
-              {analysis.needsAttention.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 text-sm text-gray-600"
-                >
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#E63946] shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-8 pt-6 border-t border-gray-50">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-            Recommendations
-          </p>
-          <div className="space-y-3">
-            {analysis.recommendations.map((item, i) => (
-              <div
-                key={i}
-                className="flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100 items-center"
-              >
-                <div className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-[10px] font-bold text-gray-700">
-                  {i + 1}
-                </div>
-                <span className="text-sm text-gray-700 font-medium">
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-4 bg-gray-900 rounded-xl relative">
-          <div className="absolute top-0 right-0 p-3 opacity-30">
-            <Sparkles
-              size={14}
-              className="text-[#E63946]"
-              fill="currentColor"
-            />
-          </div>
-          <p className="text-[9px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-1">
-            Priority Today
-          </p>
-          <p className="text-sm text-white font-bold leading-relaxed">
-            {analysis.priority}
-          </p>
-        </div>
+        {!aiStarted && <AIAnalysisIdle onStart={fetchAiAnalysis} />}
+        {aiStarted && aiLoading && <AIAnalysisLoading />}
+        {aiStarted && aiError && <AIAnalysisError onRetry={fetchAiAnalysis} />}
+        {aiAnalysis && (
+          <AIAnalysisContent analysis={aiAnalysis} tsStr={tsStr} />
+        )}
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ export interface DummyAnalysis {
 }
 
 export interface AnalysisData {
+  analysisId: string;
   fields: CampaignFields;
   kpis: KPIResult;
   analysis: DummyAnalysis;

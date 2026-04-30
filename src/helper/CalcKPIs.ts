@@ -1,3 +1,5 @@
+import type { CampaignFields, KPIResult } from "@/lib/types";
+
 function calcKPIs(fields: CampaignFields): KPIResult {
   const imp = parseFloat(fields.impressions) || 0;
   const clk = parseFloat(fields.clicks) || 0;

@@ -1,3 +1,5 @@
+"use client";
+
 import { BarChart3, Zap, FlaskConical, Sparkles } from "lucide-react";
 import { MetricCard } from "../components/MetricCard";
 
@@ -26,10 +28,16 @@ const AdvisorLandingPage = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="text-sm font-semibold text-[#1a1c31]">
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="text-sm font-semibold text-[#1a1c31] hover:text-[#E63946] transition-colors"
+            >
               Login
             </button>
-            <button className="bg-[#E63946] text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-[#d62d3a] transition-colors">
+            <button 
+              onClick={() => window.location.href = '/register'}
+              className="bg-[#E63946] text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-[#d62d3a] transition-colors"
+            >
               Mulai Analisis Gratis
             </button>
           </div>
@@ -58,10 +66,16 @@ const AdvisorLandingPage = () => {
             </p>
 
             <div className="flex items-center gap-6 pt-2">
-              <button className="bg-[#E63946] text-white px-6 py-3 rounded-xl font-bold text-base flex items-center gap-2 hover:bg-[#d62d3a] transition-all shadow-md active:scale-95">
+              <button 
+                onClick={() => window.location.href = '/register'}
+                className="bg-[#E63946] text-white px-6 py-3 rounded-xl font-bold text-base flex items-center gap-2 hover:bg-[#d62d3a] transition-all shadow-md active:scale-95"
+              >
                 Mulai Analisis Gratis →
               </button>
-              <button className="font-bold text-slate-500 text-sm flex items-center gap-1.5">
+              <button 
+                onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+                className="font-bold text-slate-500 text-sm flex items-center gap-1.5 hover:text-[#E63946] transition-colors"
+              >
                 Lihat Cara Kerjanya <span className="text-lg">↓</span>
               </button>
             </div>

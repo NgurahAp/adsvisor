@@ -16,15 +16,15 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Jika di dashboard dan tidak ada token, redirect ke login
-  if (pathname.startsWith("/dashboard")) {
+  // Jika di dashboard/history/analysis dan tidak ada token, redirect ke login
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/history") || pathname.startsWith("/analysis")) {
     if (!token) {
-      console.log("Dashboard without token, redirecting to login");
+      console.log("Protected route without token, redirecting to login");
       return NextResponse.redirect(new URL("/login", req.url));
     }
     
     const verified = await verifyJwtEdge(token);
-    console.log("Dashboard with token, verified:", !!verified);
+    console.log("Protected route with token, verified:", !!verified);
     if (!verified) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
@@ -34,5 +34,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/history/:path*", "/analysis/:path*", "/login", "/register"],
 };

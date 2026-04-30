@@ -65,6 +65,7 @@ export async function GET(
   const response: ApiResponse<AnalysisData> = {
     success: true,
     data: {
+      analysisId: analysis.id.toString(),
       fields: {
         name: campaign.campaign_name,
         platform: ENUM_TO_PLATFORM_LABEL[campaign.platform],
@@ -78,8 +79,8 @@ export async function GET(
       },
       kpis: {
         ctr: analysis.ctr.toString(),
-        cpc: analysis.cpc,
-        cpa: analysis.cpa,
+        cpc: Number(analysis.cpc),
+        cpa: Number(analysis.cpa),
         roas: analysis.roas?.toString() || null,
       },
       analysis: aiAnalysis,

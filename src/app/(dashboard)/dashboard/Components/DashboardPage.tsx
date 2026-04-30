@@ -1,5 +1,6 @@
 import { ArrowRight, BarChart3, Info, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
+import type { AnalysisData, CampaignFields } from "@/lib/types";
 
 interface DashboardProps {
   onAnalyze: (data: AnalysisData) => void;
@@ -72,6 +73,7 @@ export default function DashboardPage({ onAnalyze }: DashboardProps) {
 
       if (payload.data) {
         onAnalyze({
+          analysisId: payload.data.analysisId,
           fields: payload.data.fields,
           kpis: payload.data.kpis,
           analysis: payload.data.analysis,
