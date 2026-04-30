@@ -7,6 +7,7 @@ import {
   Search,
   Bell,
   LogOut,
+  ChartColumn,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -49,6 +50,11 @@ export default function DashboardLayout({
       path: "/dashboard",
     },
     {
+      label: "Analysis",
+      icon: ChartColumn,
+      path: "/analysis",
+    },
+    {
       label: "History",
       icon: History,
       path: "/history",
@@ -60,7 +66,12 @@ export default function DashboardLayout({
     },
   ];
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    return pathname.startsWith(path);
+  };
 
   return (
     <div className="flex min-h-screen bg-white text-gray-800 font-sans">

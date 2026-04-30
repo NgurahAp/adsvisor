@@ -1,9 +1,13 @@
+"use client";
+
 import { fmt, fmtRp, fmtDate } from "@/helper/fmt";
-import { ChevronLeft, Download, Sparkles, Loader2 } from "lucide-react";
+import { ChevronLeft, Download, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import KPICard from "./KPICard";
+import { AnalysisData, DummyAnalysis } from "@/lib/types";
 import TypewriterText from "./TypeWritterText";
-import { AnalysisData, DummyAnalysis, KPIResult } from "@/lib/types";
+import KPICard from "./KPICard";
+import jsPDF from "jspdf";
+import { exportAnalysisPdf } from "@/helper/ExportAnalystPDF";
 
 interface ResultPageProps {
   data: AnalysisData | null;
@@ -177,9 +181,17 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(false);
   const [aiStarted, setAiStarted] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
+  }, []);
+
+  // Dengerin event afterprint untuk reset state exporting
+  useEffect(() => {
+    const handleAfterPrint = () => setExporting(false);
+    window.addEventListener("afterprint", handleAfterPrint);
+    return () => window.removeEventListener("afterprint", handleAfterPrint);
   }, []);
 
   async function fetchAiAnalysis() {
@@ -214,6 +226,18 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
     }
   }
 
+  async function handleExport() {
+    if (!data) return;
+    setExporting(true);
+    try {
+      await exportAnalysisPdf(data, aiAnalysis, tsStr);
+    } catch (err) {
+      console.error("Export PDF gagal:", err);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   if (!data) return null;
 
   const { fields, kpis, timestamp } = data;
@@ -227,17 +251,6 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
     hour: "2-digit",
     minute: "2-digit",
   })}`;
-
-  function handleExport() {
-    const txt = `HASIL ANALISIS ADVISOR AI\nKampanye: ${fields.name || "—"}\nPlatform: ${fields.platform}\n...`;
-    const blob = new Blob([txt], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `adsvisor-${fields.name || "kampanye"}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
 
   const platformColor = PLATFORM_COLORS[fields.platform] ?? "bg-[#E63946]";
 
@@ -253,12 +266,12 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
 
   return (
     <div
-      className={`max-w-4xl mx-auto py-8 px-4 transition-all duration-700 ${
+      className={`max-w-4xl mx-auto px-4 transition-all duration-700 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       }`}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      {/* Header — pakai no-print supaya tidak ikut ke PDF */}
+      <div className="no-print flex items-start justify-between mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">
@@ -269,10 +282,10 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
               Hasil Analisis
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-gray-900 leading-snug">
             Hasil Analisis
           </h1>
-          <p className="text-[11px] text-gray-400 mt-1 uppercase font-medium">
+          <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
             Dianalisis oleh AdvisorAI • {tsStr}
           </p>
         </div>
@@ -286,110 +299,128 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm"
+            disabled={exporting}
+            className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Download size={13} /> Export
+            <Download size={13} />
+            {exporting ? "Menyiapkan..." : "Export PDF"}
           </button>
         </div>
       </div>
 
-      {/* Campaign Info */}
-      <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 mb-4 shadow-sm">
-        <div className="flex items-center flex-wrap gap-2.5 mb-4">
-          <span
-            className={`${platformColor} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase`}
-          >
-            {fields.platform}
-          </span>
-          {fields.name && (
-            <span className="text-sm font-bold text-gray-900">
-              {fields.name}
-            </span>
-          )}
-          {(fields.startDate || fields.endDate) && (
-            <span className="text-[11px] text-gray-400 font-medium">
-              {fmtDate(fields.startDate)} – {fmtDate(fields.endDate)}
-            </span>
-          )}
+      {/* Konten utama — ini yang akan di-print */}
+      <div className="print-area">
+        {/* Print-only header — muncul hanya di PDF */}
+        <div className="hidden print:block mb-6">
+          <p className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase mb-1">
+            AdvisorAI • Hasil Analisis
+          </p>
+          <h1 className="text-xl font-bold text-gray-900">{fields.name}</h1>
+          <p className="text-[10px] text-gray-400 mt-0.5 uppercase">
+            Dianalisis oleh AdvisorAI • {tsStr}
+          </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {statRows.map(([label, val]) => (
-            <div key={label} className="border-l border-gray-200 pl-3">
-              <div className="text-[9px] text-gray-400 uppercase font-bold mb-0.5 tracking-tighter">
-                {label}
-              </div>
-              <div className="text-[13px] font-bold text-gray-800">{val}</div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <KPICard
-          title="CTR"
-          value={kpis.ctr}
-          suffix="%"
-          badge={
-            kpis.ctr !== null
-              ? Number(kpis.ctr) > 1.5
-                ? "Good"
-                : "Low"
-              : undefined
-          }
-          badgeUp={kpis.ctr !== null ? Number(kpis.ctr) > 1.5 : undefined}
-          delay={0}
-        />
-        <KPICard
-          title="CPC"
-          value={kpis.cpc !== null ? fmtRp(kpis.cpc) : null}
-          delay={100}
-        />
-        <KPICard
-          title="CPA"
-          value={kpis.cpa !== null ? fmtRp(kpis.cpa) : null}
-          delay={200}
-        />
-        <KPICard
-          title="ROAS"
-          value={kpis.roas}
-          suffix="x"
-          badge={
-            kpis.roas !== null
-              ? Number(kpis.roas) >= 3
-                ? "+ROI"
-                : "Flat"
-              : undefined
-          }
-          badgeUp={kpis.roas !== null ? Number(kpis.roas) >= 3 : undefined}
-          delay={300}
-        />
-      </div>
-
-      {/* AI Analysis */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold">
-            <Sparkles
-              size={14}
-              className="text-[#E63946]"
-              fill="currentColor"
-            />
-            AI Analysis
+        {/* Campaign Info */}
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 mb-4 shadow-sm">
+          <div className="flex items-center flex-wrap gap-2.5 mb-4">
+            <span
+              className={`${platformColor} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase`}
+            >
+              {fields.platform}
+            </span>
+            {fields.name && (
+              <span className="text-sm font-bold text-gray-900">
+                {fields.name}
+              </span>
+            )}
+            {(fields.startDate || fields.endDate) && (
+              <span className="text-[11px] text-gray-400 font-medium">
+                {fmtDate(fields.startDate)} – {fmtDate(fields.endDate)}
+              </span>
+            )}
           </div>
-          {aiAnalysis && (
-            <span className="text-[10px] text-gray-300 font-medium uppercase">
-              Last Updated: {tsStr}
-            </span>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {statRows.map(([label, val]) => (
+              <div key={label} className="border-l border-gray-200 pl-3">
+                <div className="text-[9px] text-gray-400 uppercase font-bold mb-0.5 tracking-tighter">
+                  {label}
+                </div>
+                <div className="text-[13px] font-bold text-gray-800">{val}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {!aiStarted && <AIAnalysisIdle onStart={fetchAiAnalysis} />}
-        {aiStarted && aiLoading && <AIAnalysisLoading />}
-        {aiStarted && aiError && <AIAnalysisError onRetry={fetchAiAnalysis} />}
-        {aiAnalysis && (
-          <AIAnalysisContent analysis={aiAnalysis} tsStr={tsStr} />
-        )}
+        {/* KPI Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <KPICard
+            title="CTR"
+            value={kpis.ctr}
+            suffix="%"
+            badge={
+              kpis.ctr !== null
+                ? Number(kpis.ctr) > 1.5
+                  ? "Good"
+                  : "Low"
+                : undefined
+            }
+            badgeUp={kpis.ctr !== null ? Number(kpis.ctr) > 1.5 : undefined}
+            delay={0}
+          />
+          <KPICard
+            title="CPC"
+            value={kpis.cpc !== null ? fmtRp(kpis.cpc) : null}
+            delay={100}
+          />
+          <KPICard
+            title="CPA"
+            value={kpis.cpa !== null ? fmtRp(kpis.cpa) : null}
+            delay={200}
+          />
+          <KPICard
+            title="ROAS"
+            value={kpis.roas}
+            suffix="x"
+            badge={
+              kpis.roas !== null
+                ? Number(kpis.roas) >= 3
+                  ? "+ROI"
+                  : "Flat"
+                : undefined
+            }
+            badgeUp={kpis.roas !== null ? Number(kpis.roas) >= 3 : undefined}
+            delay={300}
+          />
+        </div>
+
+        {/* AI Analysis */}
+        <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold">
+              <Sparkles
+                size={14}
+                className="text-[#E63946]"
+                fill="currentColor"
+              />
+              AI Analysis
+            </div>
+            {aiAnalysis && (
+              <span className="text-[10px] text-gray-300 font-medium uppercase">
+                Last Updated: {tsStr}
+              </span>
+            )}
+          </div>
+
+          {!aiStarted && <AIAnalysisIdle onStart={fetchAiAnalysis} />}
+          {aiStarted && aiLoading && <AIAnalysisLoading />}
+          {aiStarted && aiError && (
+            <AIAnalysisError onRetry={fetchAiAnalysis} />
+          )}
+          {aiAnalysis && (
+            <AIAnalysisContent analysis={aiAnalysis} tsStr={tsStr} />
+          )}
+        </div>
       </div>
     </div>
   );

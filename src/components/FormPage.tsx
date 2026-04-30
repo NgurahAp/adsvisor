@@ -2,7 +2,7 @@ import { ArrowRight, BarChart3, Info, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import type { AnalysisData, CampaignFields } from "@/lib/types";
 
-interface DashboardProps {
+interface FormProps {
   onAnalyze: (data: AnalysisData) => void;
 }
 
@@ -35,7 +35,7 @@ function Spinner() {
   return <Loader2 className="w-3.5 h-3.5 animate-spin" />;
 }
 
-export default function DashboardPage({ onAnalyze }: DashboardProps) {
+export default function FormPage({ onAnalyze }: FormProps) {
   const [fields, setFields] = useState<CampaignFields>(INITIAL_FIELDS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -82,7 +82,9 @@ export default function DashboardPage({ onAnalyze }: DashboardProps) {
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Terjadi error saat proses analisis.";
+        err instanceof Error
+          ? err.message
+          : "Terjadi error saat proses analisis.";
       setError(message);
     } finally {
       setLoading(false);
@@ -90,21 +92,21 @@ export default function DashboardPage({ onAnalyze }: DashboardProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto px-4">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">
-            AdvisorAI
+            Adsvisor
           </span>
           <span className="w-px h-3 bg-gray-200" />
           <span className="text-[10px] text-gray-400 tracking-wide uppercase">
             Analisis Kampanye
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-bold text-gray-900  leading-snug">
           Analisis Baru
         </h1>
-        <p className="text-sm text-gray-400 mt-1">
+          <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
           Masukkan data kampanye iklanmu untuk mendapatkan insight cerdas.
         </p>
       </div>

@@ -5,8 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, Download, Sparkles, Loader2 } from "lucide-react";
 import { fmt, fmtRp, fmtDate } from "@/helper/fmt";
 import type { AnalysisData } from "@/lib/types";
-import KPICard from "../../dashboard/Components/KPICard";
-import TypewriterText from "../../dashboard/Components/TypeWritterText";
+import KPICard from "../../../../components/KPICard";
+import TypewriterText from "../../../../components/TypeWritterText";
 
 const PLATFORM_COLORS: Record<string, string> = {
   "Facebook Ads": "bg-[#1877F2]",
@@ -107,7 +107,7 @@ export default function AnalysisDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto px-4">
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -120,10 +120,10 @@ export default function AnalysisDetailPage() {
               Detail Analisis
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-gray-900  leading-snug">
             {fields.name || "Campaign"}
           </h1>
-          <p className="text-[11px] text-gray-400 mt-1 uppercase font-medium">
+          <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
             Dianalisis oleh AdvisorAI • {tsStr}
           </p>
         </div>

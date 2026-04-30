@@ -176,7 +176,7 @@ function CampaignCard({
 
       {/* Name & Date */}
       <div>
-        <p className="text-[14px] font-bold text-gray-900">{campaign.name}</p>
+        <p className="text-[14px] font-bold text-gray-900 line-clamp-1">{campaign.name}</p>
         <p className="text-[11px] text-gray-400 mt-0.5">
           {campaign.startDate} - {campaign.endDate}
         </p>
@@ -345,10 +345,10 @@ export default function HistoryPage() {
               Riwayat Analisis
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-gray-900  leading-snug">
             Riwayat Analisis
           </h1>
-          <p className="text-[11px] text-gray-400 mt-1 font-medium">
+          <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
             Pantau dan bandingkan performa kampanye yang telah dianalisis
             sebelumnya.
           </p>
