@@ -176,7 +176,9 @@ function CampaignCard({
 
       {/* Name & Date */}
       <div>
-        <p className="text-[14px] font-bold text-gray-900 line-clamp-1">{campaign.name}</p>
+        <p className="text-[14px] font-bold text-gray-900 line-clamp-1">
+          {campaign.name}
+        </p>
         <p className="text-[11px] text-gray-400 mt-0.5">
           {campaign.startDate} - {campaign.endDate}
         </p>
@@ -332,7 +334,7 @@ export default function HistoryPage() {
   const showEmpty = !loading && campaigns.length > 0;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4">
       {/* Page Header */}
       <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
         <div>

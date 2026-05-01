@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { AnalysisData, DummyAnalysis } from "@/lib/types";
 import TypewriterText from "./TypeWritterText";
 import KPICard from "./KPICard";
-import jsPDF from "jspdf";
 import { exportAnalysisPdf } from "@/helper/ExportAnalystPDF";
 
 interface ResultPageProps {
@@ -113,10 +112,7 @@ function AIAnalysisContent({
           </p>
           <div className="space-y-3">
             {analysis.whatsWorking.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 text-sm text-gray-600"
-              >
+              <div key={i} className="flex items-start gap-3 text-sm text-gray-600">
                 <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
                 <span className="font-medium">{item}</span>
               </div>
@@ -129,10 +125,7 @@ function AIAnalysisContent({
           </p>
           <div className="space-y-3">
             {analysis.needsAttention.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 text-sm text-gray-600"
-              >
+              <div key={i} className="flex items-start gap-3 text-sm text-gray-600">
                 <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#E63946] shrink-0" />
                 <span className="font-medium">{item}</span>
               </div>
@@ -187,7 +180,6 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
     setTimeout(() => setVisible(true), 50);
   }, []);
 
-  // Dengerin event afterprint untuk reset state exporting
   useEffect(() => {
     const handleAfterPrint = () => setExporting(false);
     window.addEventListener("afterprint", handleAfterPrint);
@@ -266,12 +258,12 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
 
   return (
     <div
-      className={`max-w-4xl mx-auto px-4 transition-all duration-700 ${
+      className={`max-w-4xl mx-auto px-3 sm:px-4 transition-all duration-700 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       }`}
     >
-      {/* Header — pakai no-print supaya tidak ikut ke PDF */}
-      <div className="no-print flex items-start justify-between mb-8">
+      {/* Header */}
+      <div className="no-print flex items-start justify-between mb-6 sm:mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">
@@ -282,35 +274,39 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
               Hasil Analisis
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug">
             Hasil Analisis
           </h1>
           <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
             Dianalisis oleh AdvisorAI • {tsStr}
           </p>
         </div>
-        <div className="flex gap-2">
+
+        {/* Tombol — icon only di mobile, teks muncul di sm+ */}
+        <div className="flex gap-2 shrink-0 ml-3">
           <button
             onClick={onNew}
-            className="flex items-center gap-1 text-[11px] border border-gray-200 rounded-lg px-4 py-2 text-gray-500 bg-white hover:bg-gray-50 transition-all font-bold uppercase"
+            className="flex items-center gap-1 text-[11px] border border-gray-200 rounded-lg px-2 sm:px-4 py-2 text-gray-500 bg-white hover:bg-gray-50 transition-all font-bold uppercase"
           >
-            <ChevronLeft size={12} />
-            Back
+            <ChevronLeft size={14} />
+            <span className="hidden sm:inline">Back</span>
           </button>
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 sm:px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Download size={13} />
-            {exporting ? "Menyiapkan..." : "Export PDF"}
+            <Download size={14} />
+            <span className="hidden sm:inline">
+              {exporting ? "Menyiapkan..." : "Export PDF"}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Konten utama — ini yang akan di-print */}
+      {/* Konten utama */}
       <div className="print-area">
-        {/* Print-only header — muncul hanya di PDF */}
+        {/* Print-only header */}
         <div className="hidden print:block mb-6">
           <p className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase mb-1">
             AdvisorAI • Hasil Analisis
@@ -322,7 +318,7 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
         </div>
 
         {/* Campaign Info */}
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 mb-4 shadow-sm">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 sm:p-5 mb-4 shadow-sm">
           <div className="flex items-center flex-wrap gap-2.5 mb-4">
             <span
               className={`${platformColor} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase`}
@@ -340,7 +336,7 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
               </span>
             )}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {statRows.map(([label, val]) => (
               <div key={label} className="border-l border-gray-200 pl-3">
                 <div className="text-[9px] text-gray-400 uppercase font-bold mb-0.5 tracking-tighter">
@@ -353,7 +349,7 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4">
           <KPICard
             title="CTR"
             value={kpis.ctr}
@@ -395,14 +391,10 @@ export function ResultPage({ data, onNew }: ResultPageProps) {
         </div>
 
         {/* AI Analysis */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 sm:p-7 shadow-sm">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold">
-              <Sparkles
-                size={14}
-                className="text-[#E63946]"
-                fill="currentColor"
-              />
+              <Sparkles size={14} className="text-[#E63946]" fill="currentColor" />
               AI Analysis
             </div>
             {aiAnalysis && (

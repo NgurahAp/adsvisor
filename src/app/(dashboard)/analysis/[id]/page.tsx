@@ -114,9 +114,9 @@ export default function AnalysisDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between mb-6 sm:mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">
@@ -127,32 +127,35 @@ export default function AnalysisDetailPage() {
               Detail Analisis
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900  leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug">
             {fields.name || "Campaign"}
           </h1>
           <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
             Dianalisis oleh AdvisorAI • {tsStr}
           </p>
         </div>
-        <div className="flex gap-2">
+
+        {/* Tombol — icon only di mobile, teks muncul di sm+ */}
+        <div className="flex gap-2 shrink-0 ml-3">
           <button
             onClick={() => router.push("/history")}
-            className="flex items-center gap-1 text-[11px] border border-gray-200 rounded-lg px-4 py-2 text-gray-500 bg-white hover:bg-gray-50 transition-all font-bold uppercase"
+            className="flex items-center gap-1 text-[11px] border border-gray-200 rounded-lg px-2 sm:px-4 py-2 text-gray-500 bg-white hover:bg-gray-50 transition-all font-bold uppercase"
           >
-            <ChevronLeft size={12} />
-            Back
+            <ChevronLeft size={14} />
+            <span className="hidden sm:inline">Back</span>
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm"
+            className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 sm:px-4 py-2 text-[11px] text-gray-600 bg-white hover:bg-gray-50 transition-all font-bold uppercase shadow-sm"
           >
-            <Download size={13} /> Export
+            <Download size={14} />
+            <span className="hidden sm:inline">Export</span>
           </button>
         </div>
       </div>
 
       {/* Campaign Info */}
-      <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 mb-4 shadow-sm">
+      <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 sm:p-5 mb-4 shadow-sm">
         <div className="flex items-center flex-wrap gap-2.5 mb-4">
           <span
             className={`${platformColor} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase`}
@@ -170,7 +173,7 @@ export default function AnalysisDetailPage() {
             </span>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {statRows.map(([label, val]) => (
             <div key={label} className="border-l border-gray-200 pl-3">
               <div className="text-[9px] text-gray-400 uppercase font-bold mb-0.5 tracking-tighter">
@@ -183,7 +186,7 @@ export default function AnalysisDetailPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4">
         <KPICard
           title="CTR"
           value={kpis.ctr}
@@ -225,14 +228,10 @@ export default function AnalysisDetailPage() {
       </div>
 
       {/* AI Analysis */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm">
-        <div className="flex items-center justify-between mb-8">
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 sm:p-7 shadow-sm">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold">
-            <Sparkles
-              size={14}
-              className="text-[#E63946]"
-              fill="currentColor"
-            />{" "}
+            <Sparkles size={14} className="text-[#E63946]" fill="currentColor" />
             AI Analysis
           </div>
           <span className="text-[10px] text-gray-300 font-medium uppercase">
@@ -258,10 +257,7 @@ export default function AnalysisDetailPage() {
             </p>
             <div className="space-y-3">
               {aiAnalysis.whatsWorking.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 text-sm text-gray-600"
-                >
+                <div key={i} className="flex items-start gap-3 text-sm text-gray-600">
                   <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
                   <span className="font-medium">{item}</span>
                 </div>
@@ -274,10 +270,7 @@ export default function AnalysisDetailPage() {
             </p>
             <div className="space-y-3">
               {aiAnalysis.needsAttention.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 text-sm text-gray-600"
-                >
+                <div key={i} className="flex items-start gap-3 text-sm text-gray-600">
                   <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#E63946] shrink-0" />
                   <span className="font-medium">{item}</span>
                 </div>
@@ -300,9 +293,7 @@ export default function AnalysisDetailPage() {
                 <div className="w-6 h-6 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-[10px] font-bold text-gray-700">
                   {i + 1}
                 </div>
-                <span className="text-sm text-gray-700 font-medium">
-                  {item}
-                </span>
+                <span className="text-sm text-gray-700 font-medium">{item}</span>
               </div>
             ))}
           </div>
@@ -311,11 +302,7 @@ export default function AnalysisDetailPage() {
         {/* Priority */}
         <div className="p-4 bg-gray-900 rounded-xl relative">
           <div className="absolute top-0 right-0 p-3 opacity-30">
-            <Sparkles
-              size={14}
-              className="text-[#E63946]"
-              fill="currentColor"
-            />
+            <Sparkles size={14} className="text-[#E63946]" fill="currentColor" />
           </div>
           <p className="text-[9px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-1">
             Priority Today

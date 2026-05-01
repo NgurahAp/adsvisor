@@ -16,14 +16,10 @@ import {
 } from "lucide-react";
 import { HistoryApiResponse, HistoryCampaign, HistoryMeta } from "@/lib/types";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type Status = "on-track" | "warning" | "critical";
 
 const SORT_PARAM = "newest";
 const RANGE_PARAM = "30";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatRupiah(amount: number): string {
   if (amount >= 1_000_000_000)
@@ -44,12 +40,10 @@ function extractROI(campaign: HistoryCampaign): string | null {
   return null;
 }
 
-// ─── Platform Icon ─────────────────────────────────────────────────────────────
-
 export function PlatformIcon({ platform }: { platform: string }) {
   if (platform === "Google Ads") {
     return (
-      <div className="flex mr-3 items-center justify-center flex-shrink-0 rounded-xl ">
+      <div className="flex mr-3 items-center justify-center flex-shrink-0 rounded-xl">
         <svg
           width="20"
           height="20"
@@ -76,7 +70,6 @@ export function PlatformIcon({ platform }: { platform: string }) {
       </div>
     );
   }
-
   if (platform === "Facebook Ads") {
     return (
       <div className="flex mr-3 items-center justify-center flex-shrink-0">
@@ -94,7 +87,6 @@ export function PlatformIcon({ platform }: { platform: string }) {
       </div>
     );
   }
-
   if (platform === "TikTok Ads") {
     return (
       <div className="flex mr-3 items-center justify-center flex-shrink-0">
@@ -112,7 +104,6 @@ export function PlatformIcon({ platform }: { platform: string }) {
       </div>
     );
   }
-
   if (platform === "Instagram Ads") {
     return (
       <div className="flex mr-3 items-center justify-center flex-shrink-0">
@@ -147,14 +138,12 @@ export function PlatformIcon({ platform }: { platform: string }) {
       </div>
     );
   }
-
   return (
     <div className="flex mr-3 items-center justify-center flex-shrink-0 rounded-xl bg-gray-50 border border-gray-100">
       <BarChart2 size={16} className="text-gray-400" />
     </div>
   );
 }
-// ─── Status Badge ──────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: Status }) {
   if (status === "on-track") {
@@ -181,8 +170,6 @@ function StatusBadge({ status }: { status: Status }) {
   );
 }
 
-// ─── Stat Card ─────────────────────────────────────────────────────────────────
-
 type StatCardProps = {
   label: string;
   value: string;
@@ -204,28 +191,23 @@ function StatCard({
   iconBg,
 }: StatCardProps) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3 hover:shadow-md transition-all duration-200">
-      {/* Header Section: Icon & Label */}
-      <div className="flex items-center gap-3">
+    <div className="bg-white border border-gray-100 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col gap-2 sm:gap-3 hover:shadow-md transition-all duration-200">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div
           className={`rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg} bg-opacity-10`}
         >
-          {/* Menyesuaikan ukuran ikon agar tetap proporsional dengan container baru */}
           <div className="scale-90">{icon}</div>
         </div>
-        <p className="text-[9px] font-semibold text-gray-500 uppercase tracking-wider">
+        <p className="text-[9px] font-semibold text-gray-500 uppercase tracking-wider leading-tight">
           {label}
         </p>
       </div>
-
-      <h3 className="text-lg font-bold text-slate-800 leading-tight">
+      <h3 className="text-base sm:text-lg font-bold text-slate-800 leading-tight">
         {value}
       </h3>
-
-      {/* Content Section: Value & Delta */}
       <div className="flex flex-col gap-1">
         {(delta || deltaLabel) && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             {delta && (
               <span
                 className={`text-[10px] font-semibold ${deltaPositive ? "text-green-600" : "text-red-500"}`}
@@ -234,7 +216,7 @@ function StatCard({
               </span>
             )}
             {deltaLabel && (
-              <span className="text-[10px] font-medium text-gray-400">
+              <span className="text-[10px] font-medium text-gray-400 leading-tight">
                 {deltaLabel}
               </span>
             )}
@@ -244,8 +226,6 @@ function StatCard({
     </div>
   );
 }
-
-// ─── Campaign Row ──────────────────────────────────────────────────────────────
 
 function CampaignRow({
   campaign,
@@ -260,14 +240,13 @@ function CampaignRow({
 
   return (
     <div
-      className={`flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50/60 transition-colors cursor-pointer ${
+      className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 hover:bg-gray-50/60 transition-colors cursor-pointer ${
         !isLast ? "border-b border-gray-100" : ""
       }`}
       onClick={() => onDetail?.(campaign.id)}
     >
       <PlatformIcon platform={campaign.platform} />
 
-      {/* Nama kampanye — flex-1 supaya sisanya terdorong ke kanan */}
       <div className="flex-1 min-w-0">
         <p className="text-[12.5px] font-semibold text-gray-900 truncate leading-tight">
           {campaign.name}
@@ -275,15 +254,19 @@ function CampaignRow({
         <p className="text-[11px] text-gray-400 mt-0.5 leading-tight">
           {campaign.startDate} – {campaign.endDate}
         </p>
+        {/* Status badge inline di bawah nama — mobile only */}
+        <div className="mt-1.5 sm:hidden">
+          <StatusBadge status={campaign.status as Status} />
+        </div>
       </div>
 
-      {/* Status — fixed width + centered */}
-      <div className="w-52 flex justify-center flex-shrink-0">
+      {/* Status — desktop only */}
+      <div className="hidden sm:flex w-52 justify-center flex-shrink-0">
         <StatusBadge status={campaign.status as Status} />
       </div>
 
-      {/* ROI — fixed width + centered */}
-      <div className="w-40 flex justify-center flex-shrink-0">
+      {/* ROI — desktop only */}
+      <div className="hidden sm:flex w-40 justify-center flex-shrink-0">
         {roi ? (
           <p className="text-[13px] font-bold text-gray-800">{roi}</p>
         ) : (
@@ -291,19 +274,25 @@ function CampaignRow({
         )}
       </div>
 
-      <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+      {/* ROI + chevron — mobile only */}
+      <div className="sm:hidden flex items-center gap-2 flex-shrink-0">
+        {roi && <p className="text-[12px] font-bold text-gray-700">{roi}</p>}
+        <ChevronRight size={14} className="text-gray-300" />
+      </div>
+
+      {/* Chevron — desktop only */}
+      <ChevronRight
+        size={14}
+        className="hidden sm:block text-gray-300 flex-shrink-0"
+      />
     </div>
   );
 }
 
-// ─── Skeleton Row ──────────────────────────────────────────────────────────────
-
 function SkeletonRow({ isLast }: { isLast: boolean }) {
   return (
     <div
-      className={`flex items-center gap-3 px-5 py-3.5 animate-pulse ${
-        !isLast ? "border-b border-gray-100" : ""
-      }`}
+      className={`flex items-center gap-3 px-5 py-3.5 animate-pulse ${!isLast ? "border-b border-gray-100" : ""}`}
     >
       <div className="rounded-xl bg-gray-100 flex-shrink-0" />
       <div className="flex-1 space-y-1.5">
@@ -317,8 +306,6 @@ function SkeletonRow({ isLast }: { isLast: boolean }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
-
 export default function DashboardPage() {
   const router = useRouter();
 
@@ -327,40 +314,30 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const handleDetail = (id: string) => {
-    router.push(`/analysis/${id}`);
-  };
-
-  const handleLihatSemua = () => {
-    router.push("/history");
-  };
+  const handleDetail = (id: string) => router.push(`/analysis/${id}`);
+  const handleLihatSemua = () => router.push("/history");
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     setError("");
-
     try {
       const params = new URLSearchParams({
         sort: SORT_PARAM,
         range: RANGE_PARAM,
         limit: "3",
       });
-
       const res = await fetch(`/api/dashboard/history?${params.toString()}`);
       const payload: HistoryApiResponse = await res.json();
-
-      if (!res.ok || !payload.success) {
+      if (!res.ok || !payload.success)
         throw new Error(payload.message || "Gagal memuat data dashboard.");
-      }
-
       if (payload.data) {
         setCampaigns(payload.data.campaigns.slice(0, 4));
         setMeta(payload.data.meta);
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Terjadi error saat memuat data.";
-      setError(message);
+      setError(
+        err instanceof Error ? err.message : "Terjadi error saat memuat data.",
+      );
     } finally {
       setLoading(false);
     }
@@ -371,11 +348,11 @@ export default function DashboardPage() {
   }, [fetchDashboard]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4">
       {/* ── Page Header ── */}
-      <div className="relative mb-8 bg-white -gray-100 overflow-hidden">
-        {/* Left: text */}
-        <div className="max-w-[60%]">
+      <div className="relative mb-6 sm:mb-8 overflow-hidden">
+        {/* Teks full width di mobile, 60% di sm+ */}
+        <div className="sm:max-w-[60%]">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[10px] font-bold tracking-widest text-[#E63946] uppercase">
               Adsvisor
@@ -385,7 +362,7 @@ export default function DashboardPage() {
               Dashboard
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900  leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold pr-28 sm:pr-0 text-gray-900 leading-snug">
             Selamat datang kembali, Ngurah Ap 👋
           </h1>
           <p className="text-[10px] text-gray-400 mt-1 uppercase font-medium">
@@ -394,8 +371,8 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Right: chart illustration */}
-        <div className="absolute right-0 top-0 h-full w-[220px] flex items-center justify-end pr-4 pointer-events-none select-none">
+        {/* Ilustrasi — hanya di sm ke atas */}
+        <div className="hidden sm:flex absolute right-0 top-0 h-full w-[220px] items-center justify-end pr-4 pointer-events-none select-none">
           <Image
             src="/chartImage.png"
             alt="Dashboard Illustration"
@@ -408,7 +385,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Summary Stats ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-6 sm:mb-8">
         <StatCard
           label="Total Analisis"
           value={meta !== null ? String(meta.totalAnalisis) : "—"}
@@ -418,7 +395,6 @@ export default function DashboardPage() {
           icon={<ClipboardList size={16} className="text-[#E63946]" />}
           iconBg="bg-red-50"
         />
-
         <StatCard
           label="Rata-rata ROI"
           value={
@@ -434,7 +410,6 @@ export default function DashboardPage() {
           icon={<TrendingUp size={16} className="text-green-500" />}
           iconBg="bg-green-50"
         />
-
         <StatCard
           label="Anggaran Terkelola"
           value={meta !== null ? formatRupiah(meta.anggaranTerkelola) : "—"}
@@ -444,7 +419,6 @@ export default function DashboardPage() {
           icon={<Wallet size={16} className="text-purple-500" />}
           iconBg="bg-purple-50"
         />
-
         <StatCard
           label="Efisiensi AI"
           value={meta !== null ? `${meta.efisiensiAI}%` : "—"}
@@ -474,8 +448,7 @@ export default function DashboardPage() {
 
       {/* ── Campaign Card ── */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-        {/* Card Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-gray-100">
           <p className="text-[13.5px] font-bold text-gray-900">
             Riwayat Analisis Terbaru
           </p>
@@ -488,7 +461,6 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Campaign List */}
         {loading ? (
           <>
             <SkeletonRow isLast={false} />
@@ -526,7 +498,6 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Spinner saat refetch */}
       {loading && campaigns.length > 0 && (
         <div className="flex justify-center mt-6">
           <Loader2 size={16} className="animate-spin text-gray-300" />
